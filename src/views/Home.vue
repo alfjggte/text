@@ -1,12 +1,7 @@
 <template>
   <el-col :span="12" class="box">
-    <h5>默认颜色</h5>
-    <el-menu
-      default-active="2"
-      class="el-menu-vertical-demo"
-      @open="handleOpen"
-      @close="handleClose"
-    >
+    <h5>全球新闻发布管理系统</h5>
+    <el-menu default-active="2" class="el-menu-vertical-demo">
       <el-submenu index="1">
         <template slot="title">
           <i class="el-icon-location"></i>
@@ -26,13 +21,12 @@
 export default {
   name: "Home",
   components: {},
-  methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
-    },
+  methods: {},
+  mounted() {
+    this.$axios.get("http://localhost:2246/users").then((response) => {
+      // this.users = response.data;
+      console.log(response.data);
+    });
   },
 };
 </script>
