@@ -5,6 +5,7 @@
     @open="handleOpen"
     @close="handleClose"
     :collapse="isCollapse"
+    :unique-opened="true"
   >
     <el-menu-item v-for="item in noChildren" :key="item.key" :index="item.key">
       <i class="el-icon-menu"></i>
@@ -15,21 +16,22 @@
         <i class="el-icon-location"></i>
         <span slot="title">{{ item.title }}</span>
       </template>
-      <el-menu-item-group
-        v-for="item in item.children"
-        :key="item.key"
-        :index="item.key"
-      >
-        <el-menu-item index="item.id">{{ item.title }}</el-menu-item>
-      </el-menu-item-group>
+      <template v-for="item in item.children">
+        <el-menu-item-group
+          :key="item.key"
+          v-if="item.pagepermisson === 1"
+          :index="item.key"
+        >
+          <el-menu-item>{{ item.title }}</el-menu-item>
+        </el-menu-item-group>
+      </template>
     </el-submenu>
   </el-menu>
 </template>
-
 <style>
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 200px;
-  min-height: 400px;
+  height: 100vh;
 }
 </style>
 
