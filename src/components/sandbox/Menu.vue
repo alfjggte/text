@@ -6,6 +6,9 @@
     @close="handleClose"
     :collapse="isCollapse"
     :unique-opened="true"
+    background-color="#001529"
+    text-color="#FFFFFF"
+    active-text-color="#F00"
   >
     <el-menu-item v-for="item in noChildren" :key="item.key" :index="item.key">
       <i class="el-icon-menu"></i>
@@ -17,12 +20,8 @@
         <span slot="title">{{ item.title }}</span>
       </template>
       <template v-for="item in item.children">
-        <el-menu-item-group
-          :key="item.key"
-          v-if="item.pagepermisson === 1"
-          :index="item.key"
-        >
-          <el-menu-item>{{ item.title }}</el-menu-item>
+        <el-menu-item-group :key="item.key" v-if="item.pagepermisson === 1">
+          <el-menu-item :index="item.key">{{ item.title }}</el-menu-item>
         </el-menu-item-group>
       </template>
     </el-submenu>
@@ -57,13 +56,6 @@ export default {
       });
     },
   },
-  // filters: {
-  //   noChildren() {
-  //     return this.rights.filter((item) => {
-  //       item.children.length === 0;
-  //     });
-  //   },
-  // },
   methods: {
     handleOpen(key, keyPath) {
       console.log(key, keyPath);

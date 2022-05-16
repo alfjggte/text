@@ -2,18 +2,22 @@
   <el-container style="height: 100%">
     <el-aside width="auto"><common-aside></common-aside></el-aside>
     <el-container>
-      <el-header>Header</el-header>
-      <el-main>Main</el-main>
+      <el-header><TopHeader /></el-header>
+      <el-main><NewsRouter /></el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
-import CommonAside from "../components/Menu.vue";
+import CommonAside from "../components/sandbox/Menu.vue";
+import TopHeader from "../components/sandbox/TopHeader.vue";
+import NewsRouter from "../components/sandbox/NewsRouter.vue";
 export default {
-  name: "Home",
+  name: "Main",
   components: {
     CommonAside,
+    TopHeader,
+    NewsRouter,
   },
   methods: {},
   mounted() {},
