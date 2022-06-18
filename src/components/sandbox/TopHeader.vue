@@ -45,8 +45,7 @@ export default {
   data() {
     //这里存放数据
     return {
-      circleUrl:
-        "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+      circleUrl: "https://s1.ax1x.com/2022/06/13/XfE6xI.jpg",
       size: 30,
     };
   },

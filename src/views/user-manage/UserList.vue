@@ -1,15 +1,7 @@
 <!--  -->
 <template>
   <div class="">
-    <el-button
-      type="primary"
-      @click="
-        () => {
-          isAddvisible = true;
-        }
-      "
-      >添加用户</el-button
-    >
+    <el-button type="primary" @click="addUser">添加用户</el-button>
     <el-table
       :data="
         tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -44,7 +36,7 @@
             icon="el-icon-edit"
             :disabled="scope.row.default"
             circle
-            @click="handleEdit(scope.$index, scope.row)"
+            @click="handleEdit(scope.row)"
           ></el-button>
         </template>
       </el-table-column>
@@ -61,13 +53,21 @@
     >
     </el-pagination>
 
-    <el-dialog title="添加用户" :visible.sync="isAddvisible" width="30%">
+    <el-dialog
+      :title="title == 'add' ? '添加用户' : '编辑用户'"
+      :visible.sync="isAddvisible"
+      width="30%"
+    >
       <span
-        ><UserForm ref="addFrom" :roleList="roleList" :regionList="regionList"
+        ><UserForm
+          ref="addFrom"
+          :roleList="roleList"
+          :regionList="regionList"
+          :ruleForm="ruleForm"
       /></span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="isAddvisible = false">取 消</el-button>
-        <el-button type="primary" @click="addFormOk">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="confirm">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -87,21 +87,27 @@ export default {
   data() {
     //这里存放数据
     return {
-      radioModel: true,
+      // radioModel: true,
       region: {},
-      username: [],
+      userList: [],
       regionList: [],
-      roleList: {},
-      isAddvisible: false,
-      ruleForm: [],
+      roleList: [],
+      isAddvisible: false, //对话框
+      ruleForm: {
+        username: "",
+        password: "",
+        region: "",
+        roleId: "",
+      },
       currentPage: 1, // 当前页码
       pageSize: 5, // 每页的数据条数
+      title: "add",
     };
   },
   //监听属性 类似于data概念
   computed: {
     tableData() {
-      const newlist = this.username;
+      const newlist = this.userList;
       for (let i = 0; i < newlist.length; i++) {
         if (newlist[i].region === "") {
           newlist[i].region = "全球";
@@ -109,76 +115,99 @@ export default {
       }
       return newlist;
     },
-    // tableData: {
-    //   handler() {
-    //     const newlist = this.username;
-    //     for (let i = 0; i < newlist.length; i++) {
-    //       if (newlist[i].region === "") {
-    //         newlist[i].region = "全球";
-    //       }
-    //     }
-    //     return newlist;
-    //   },
-    //   deep: true, //开启深度监听
-    // },
   },
   //监控data中的数据变化
   watch: {},
   //方法集合
   methods: {
     //添加用户
-    addFormOk() {
-      // this.$refs.addFrom.submitForm();
-      this.$refs.addFrom.$refs.ruleForm.validate((valid) => {
-        if (valid) {
-          this.isAddvisible = false;
-          // const newform = this.$refs.addFrom.ruleForm;
-          this.ruleForm = { ...this.$refs.addFrom.ruleForm };
-          console.log(this.ruleForm);
-          if (this.ruleForm.roleId === "超级管理员") {
-            this.ruleForm.roleId = 1;
-          } else if (this.ruleForm.roleId === "区域管理员") {
-            this.ruleForm.roleId = 2;
+    addUser() {
+      this.title = "add";
+      this.isAddvisible = true;
+    },
+    confirm() {
+      if (this.title === "add") {
+        this.$refs.addFrom.$refs.ruleForm.validate((valid) => {
+          if (valid) {
+            this.$axios
+              .post(`/users`, {
+                ...this.ruleForm,
+                roleState: true,
+                default: false,
+              })
+              .then((res) => {
+                // console.log(res.data);
+                this.userList = [
+                  ...this.userList,
+                  {
+                    ...res.data,
+                    role: this.roleList.filter(
+                      (item) => item.id === this.ruleForm.roleId
+                    )[0],
+                  },
+                ];
+                this.ruleForm = {
+                  username: "",
+                  password: "",
+                  region: "",
+                  roleId: "",
+                };
+                // this.userList = [
+                //   ...this.userList,
+                //   {
+                //     ...res.data,
+                //     role: this.roleList.filter(
+                //       (item) => item.id === this.ruleForm.roleId
+                //     )[0],
+                //   },
+                // ];
+                // this.ruleForm = {
+                //   username: "",
+                //   password: "",
+                //   region: "",
+                //   roleId: "",
+                // };
+              });
           } else {
-            this.ruleForm.roleId = 3;
+            console.log("error submit!!");
+            return false;
           }
-          this.$axios
-            .post(`/users`, {
-              ...this.ruleForm,
-              roleState: true,
-              default: false,
-            })
-            .then((res) => {
-              console.log(res.data);
-              this.username = [
-                ...this.username,
-                {
-                  ...res.data,
-                  role: this.roleList.filter(
-                    (item) => item.id === this.ruleForm.roleId
-                  )[0],
-                },
-              ];
-              console.log(this.username);
-            });
-          // this.$refs.addFrom.$refs.ruleForm.ruleForm = null;
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-        this.clean();
-      });
-
-      // console.log(this.$refs.addFrom);
-      // this.isAddvisible = false;
+        });
+      } else {
+        this.$refs.addFrom.$refs.ruleForm.validate((valid) => {
+          if (valid) {
+            this.$axios
+              .patch(`/users/${this.ruleForm.id}`, {
+                ...this.ruleForm,
+              })
+              .then(() => {
+                this.getUserList();
+                this.ruleForm = {
+                  username: "",
+                  password: "",
+                  region: "",
+                  roleId: "",
+                };
+              });
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
+        });
+      }
+      this.isAddvisible = false;
     },
 
-    clean() {
-      setImmediate(() => {
-        this.$refs.addFrom.$refs.ruleForm.resetFields();
-        this.$refs.addFrom.$refs.disabled = false;
-      }, 0);
-      // this.$refs.addFrom.$refs.ruleForm.resetFields();
+    // 取消
+    cancel() {
+      this.isAddvisible = false;
+      this.ruleForm = {
+        username: "",
+        password: "",
+        region: "",
+        roleId: "",
+      };
+      this.disabled = false;
     },
     // 状态
     roleState(row) {
@@ -189,8 +218,17 @@ export default {
       // console.log(row);
     },
     // 编辑
-    handleEdit(index, row) {
-      console.log(index, row);
+    handleEdit(row) {
+      this.isAddvisible = true;
+      this.title = "edit";
+      this.ruleForm.username = row.username;
+      this.ruleForm.password = row.password;
+      this.ruleForm.region = row.region;
+      this.ruleForm.roleId = row.roleId;
+      this.ruleForm.roleState = row.roleState;
+      this.ruleForm.default = row.default;
+      this.ruleForm.id = row.id;
+      // console.log(this.ruleForm);
     },
     // 删除
     handleDelete(row) {
@@ -200,7 +238,7 @@ export default {
         type: "warning",
       })
         .then(() => {
-          this.username = this.username.filter((data) => data.id !== row.id);
+          this.userList = this.userList.filter((data) => data.id !== row.id);
           this.$axios.delete(`/users/${row.id}`);
         })
         .catch(() => {
@@ -213,20 +251,38 @@ export default {
 
     //当前页改变时触发 跳转其他页
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      // console.log(`当前页: ${val}`);
       this.currentPage = val;
+    },
+    // 获取UserList
+    getUserList() {
+      const roleObj = {
+        1: "superadmin",
+        2: "admin",
+        3: "editor",
+      };
+      const { roleId, region, username } = JSON.parse(
+        localStorage.getItem("token")
+      );
+      this.$axios.get("/users?_expand=role").then((res) => {
+        const list = res.data;
+        this.userList =
+          roleObj[roleId] === "superadmin"
+            ? list
+            : [
+                ...list.filter((item) => item.username === username),
+                ...list.filter(
+                  (item) =>
+                    item.region === region &&
+                    this.roleObj[item.roleId] === "editor"
+                ),
+              ];
+      });
     },
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    const roleObj = {
-      1: "superadmin",
-      2: "admin",
-      3: "editor",
-    };
-    const { roleId, region, username } = JSON.parse(
-      localStorage.getItem("token")
-    );
+    this.getUserList();
     this.$axios.get("/regions").then((res) => {
       this.regionList = res.data;
       // console.log(this.regionList);
@@ -236,30 +292,13 @@ export default {
       this.roleList = res.data;
       // console.log(this.roleList);
     });
-    this.$axios.get("/users?_expand=role").then((res) => {
-      const list = res.data;
-      this.username =
-        roleObj[roleId] === "superadmin"
-          ? list
-          : [
-              ...list.filter((item) => item.username === username),
-              ...list.filter(
-                (item) =>
-                  item.region === region &&
-                  this.roleObj[item.roleId] === "editor"
-              ),
-            ];
-      console.log(this.username);
-    });
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
-  updated() {
-    console.log(this.username);
-  }, //生命周期 - 更新之后
+  updated() {}, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
   destroyed() {}, //生命周期 - 销毁完成
   activated() {}, //如果页面有keep-alive缓存功能，这个函数会触发

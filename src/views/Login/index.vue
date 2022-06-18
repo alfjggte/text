@@ -121,7 +121,7 @@ export default {
 #particles-js {
   width: 100%;
   background: rgb(35, 39, 65);
-  height: calc(100% - 4px);
+  height: calc(100% - 5px);
   position: absolute;
 }
 .formContainer {

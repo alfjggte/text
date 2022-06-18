@@ -104,6 +104,9 @@ export default {
 .el-menu-vertical-demo {
   height: 100%;
 }
+.el-menu {
+  border: none;
+}
 .title {
   text-align: center;
   color: aliceblue;

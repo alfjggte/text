@@ -6,6 +6,8 @@ import Detail from '../views/News/detail.vue'
 import Main from '../views/Main'
 import Home from '../views/Home'
 import UserList from '../views/user-manage/UserList.vue'
+import RightList from '../views/right-manage/RightList.vue'
+import RoleList from '../views/right-manage/RoleList.vue'
 Vue.use(VueRouter)
 const routes = [
   {
@@ -41,6 +43,18 @@ const routes = [
         path: '/user-manage/list',
         name: 'UserList',
         component: UserList,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/right-manage/role/list',
+        name: 'RoleList',
+        component: RoleList,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/right-manage/right/list',
+        name: 'RightList',
+        component: RightList,
         meta: { isAuth: true },
       }
     ]

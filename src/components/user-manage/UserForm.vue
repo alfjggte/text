@@ -27,12 +27,12 @@
         </el-select>
       </el-form-item>
       <el-form-item label="角色" prop="roleId">
-        <el-select v-model="ruleForm.roleId" @change="aaa">
+        <el-select v-model="ruleForm.roleId" @change="refresh">
           <el-option
             v-for="item in roleList"
             :key="item.id"
             :label="item.roleName"
-            :value="item.roleName"
+            :value="item.roleType"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -53,22 +53,11 @@
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {},
-  props: ["roleList", "regionList"],
+  props: ["roleList", "regionList", "ruleForm"],
   data() {
     //这里存放数据
     return {
-      roleObj: {
-        1: "superadmin",
-        2: "admin",
-        3: "editor",
-      },
-      disabled: false,
-      ruleForm: {
-        username: "",
-        password: "",
-        region: [],
-        roleId: [],
-      },
+      disabled: false, //禁选
       rules: {
         username: [
           { required: true, message: "请输入用户名", trigger: "blur" },
@@ -82,9 +71,9 @@ export default {
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
           {
-            min: 6,
+            min: 3,
             max: 12,
-            message: "长度在 6 到 12 个字符",
+            message: "长度在 3 到 12 个字符",
             trigger: "blur",
           },
         ],
@@ -105,21 +94,8 @@ export default {
   watch: {},
   //方法集合
   methods: {
-    submitForm() {
-      this.$refs.ruleForm.validate((valid) => {
-        if (valid) {
-          alert("submit!");
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
-    },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
-    },
-    aaa() {
-      if (this.ruleForm.roleId === "超级管理员") {
+    refresh() {
+      if (this.ruleForm.roleId === 1) {
         this.disabled = true;
         this.ruleForm.region = "";
       } else {
@@ -129,12 +105,12 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    // this.ruleForm.region = this.regionList;
+    setInterval(() => {
+      this.refresh();
+    }, 0);
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
-  mounted() {
-    // console.log(this.ruleForm);
-  },
+  mounted() {},
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
