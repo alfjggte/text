@@ -86,12 +86,12 @@ export default {
               `/users?username=${this.ruleForm.name}&password=${this.ruleForm.password}&roleState=true&_expand=role`
             )
             .then((res) => {
-              console.log(res.data);
+              // console.log(res.data);
               if (res.data.length === 0) {
                 this.$message.error("用户名或密码不匹配");
               } else {
                 localStorage.setItem("token", JSON.stringify(res.data[0]));
-                this.$router.push("/");
+                this.$router.push("/home");
               }
             });
         } else {

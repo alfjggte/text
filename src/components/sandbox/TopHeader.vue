@@ -16,16 +16,12 @@
         >欢迎 <span style="color: #1890ff">{{ username }}</span> 回来</span
       >
       <div class="headPortrait">
-        <el-dropdown
-          :hide-on-click="false"
-          placement="bottom"
-          @command="withdraw"
-        >
+        <el-dropdown :hide-on-click="false" placement="bottom">
           <el-avatar :size="size" :src="circleUrl"></el-avatar>
 
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>{{ roleName }}</el-dropdown-item>
-            <el-dropdown-item command>退出</el-dropdown-item>
+            <el-dropdown-item @click.native="withdraw">退出</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>

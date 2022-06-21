@@ -18,6 +18,8 @@ Vue.use(List).use(Avatar).use(Descriptions).use(PageHeader)
 // 格式化时间
 import dayjs from 'dayjs'
 Vue.prototype.$day = dayjs
+import { ElementTiptapPlugin } from 'element-tiptap';
+import 'element-tiptap/lib/index.css';
 
 
 Vue.prototype._ = _
@@ -25,6 +27,9 @@ Vue.prototype.$echarts = echarts
 Vue.use(VueParticles)
 Vue.config.productionTip = false
 Vue.use(ElementUI);
+Vue.use(ElementTiptapPlugin, {
+  lang: "zh", // see i18n
+});
 new Vue({
   router,
   store,

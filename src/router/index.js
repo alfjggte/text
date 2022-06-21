@@ -8,6 +8,14 @@ import Home from '../views/Home'
 import UserList from '../views/user-manage/UserList.vue'
 import RightList from '../views/right-manage/RightList.vue'
 import RoleList from '../views/right-manage/RoleList.vue'
+import NewsAdd from '../views/news-manage/NewsAdd.vue'
+import NewsCategory from '../views/news-manage/NewsCategory.vue'
+import NewsDraft from '../views/news-manage/NewsDraft.vue'
+import Audit from '../views/audit-manage/Audit.vue'
+import AuditList from '../views/audit-manage/AuditList.vue'
+import Published from '../views/publish-manage/Published.vue'
+import Sunset from '../views/publish-manage/Sunset.vue'
+import Unpublished from '../views/publish-manage/Unpublished.vue'
 Vue.use(VueRouter)
 const routes = [
   {
@@ -56,7 +64,56 @@ const routes = [
         name: 'RightList',
         component: RightList,
         meta: { isAuth: true },
+      },
+      {
+        path: '/news-manage/add',
+        name: 'NewsAdd',
+        component: NewsAdd,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/news-manage/draft',
+        name: 'NewsDraft',
+        component: NewsDraft,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/news-manage/category',
+        name: 'NewsCategory',
+        component: NewsCategory,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/audit-manage/list',
+        name: 'AuditList',
+        component: AuditList,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/audit-manage/audit',
+        name: 'Audit',
+        component: Audit,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/publish-manage/unpublished',
+        name: 'Unpublished',
+        component: Unpublished,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/publish-manage/published',
+        name: 'Published',
+        component: Published,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/publish-manage/sunset',
+        name: 'Sunset',
+        component: Sunset,
+        meta: { isAuth: true },
       }
+
     ]
   },
 ]
