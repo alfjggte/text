@@ -1,7 +1,12 @@
 <!--  -->
 <template>
   <div class="roleList">
-    <el-table :data="dataSource" style="width: 100%">
+    <el-table
+      :data="
+        dataSource.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+      "
+      style="width: 100%"
+    >
       <el-table-column prop="id" label="ID" width="300"> </el-table-column>
       <el-table-column prop="roleName" label="角色名称" width="300">
       </el-table-column>
@@ -41,6 +46,16 @@
         <el-button type="primary" @click="handleOk">确 定</el-button>
       </span>
     </el-dialog>
+    <el-pagination
+      align="right"
+      background
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-size="pageSize"
+      layout=" prev, pager, next"
+      :total="dataSource.length"
+    >
+    </el-pagination>
   </div>
 </template>
 
@@ -63,6 +78,8 @@ export default {
       },
       currentRights: [],
       currentId: 0,
+      currentPage: 1, // 当前页码
+      pageSize: 5, // 每页的数据条数
     };
   },
   //监听属性 类似于data概念
@@ -133,6 +150,11 @@ export default {
       this.$axios.get("/roles").then((res) => {
         this.dataSource = res.data;
       });
+    },
+    //当前页改变时触发 跳转其他页
+    handleCurrentChange(val) {
+      // console.log(`当前页: ${val}`);
+      this.currentPage = val;
     },
   },
   //生命周期 - 创建完成（可以访问当前this实例）

@@ -2,8 +2,6 @@
   <el-menu
     :default-active="activePath"
     class="el-menu-vertical-demo"
-    @open="handleOpen"
-    @close="handleClose"
     :collapse="isCollapse"
     :unique-opened="true"
     background-color="#001529"
@@ -16,7 +14,7 @@
       v-for="item in noChildren"
       :key="item.id"
       :index="item.key"
-      @click="saveNavState(item.key)"
+      @click="SetActive(item.key)"
     >
       <i class="el-icon-menu"></i>
       <span slot="title">{{ item.title }}</span>
@@ -31,7 +29,7 @@
           :index="item.key"
           :key="item.id"
           v-if="item.pagepermisson === 1"
-          @click="saveNavState(item.key)"
+          @click="SetActive(item.key)"
         >
           <i class="el-icon-warning"></i>
           <span slot="title">{{ item.title }}</span>
@@ -42,21 +40,17 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
 export default {
   name: "Menu",
   data() {
     return {
       rights: [],
-      activePath: "/home",
+      // activePath: "/home",
       // noChildren: undefined,
     };
   },
-  watch: {
-    // activePath() {
-    //   window.localStorage.getItem("activePath");
-    // },
-  },
+  watch: {},
 
   computed: {
     noChildren() {
@@ -70,25 +64,17 @@ export default {
       });
     },
 
-    ...mapState(["isCollapse"]),
+    ...mapState(["isCollapse", "activePath"]),
   },
   methods: {
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath);
-    },
-    saveNavState(activePath) {
-      window.sessionStorage.setItem("activePath", activePath);
-    },
+    ...mapMutations(["SetActive"]),
   },
   created() {
     this.$axios.get("/rights?_embed=children").then((response) => {
       this.rights = response.data;
       // console.log(response.data[1].children.length);
     });
-    this.activePath = window.sessionStorage.getItem("activePath");
+    // this.activePath = window.sessionStorage.getItem("activePath");
   },
   mounted() {},
 };

@@ -61,6 +61,8 @@ export default {
   methods: {
     withdraw() {
       localStorage.removeItem("token");
+      this.$store.commit("ClearActive");
+      this.$store.commit("ClearIsCollapse");
       this.$router.push("/login");
     },
     ...mapMutations(["OPEN"]),

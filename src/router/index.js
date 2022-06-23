@@ -16,6 +16,8 @@ import AuditList from '../views/audit-manage/AuditList.vue'
 import Published from '../views/publish-manage/Published.vue'
 import Sunset from '../views/publish-manage/Sunset.vue'
 import Unpublished from '../views/publish-manage/Unpublished.vue'
+import NewsUpdate from '../views/news-manage/NewsUpdate.vue'
+import NewsPreview from '../views/news-manage/NewsPreview.vue'
 Vue.use(VueRouter)
 const routes = [
   {
@@ -111,6 +113,18 @@ const routes = [
         path: '/publish-manage/sunset',
         name: 'Sunset',
         component: Sunset,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/news-manage/update/:id',
+        name: 'NewsUpdate',
+        component: NewsUpdate,
+        meta: { isAuth: true },
+      },
+      {
+        path: '/news-manage/preview/:id',
+        name: 'NewsPreview',
+        component: NewsPreview,
         meta: { isAuth: true },
       }
 

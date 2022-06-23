@@ -87,7 +87,10 @@ export default {
     return {
       current: 0,
       categoryList: [], //分类
-      ruleForm: {},
+      ruleForm: {
+        title: "",
+        categoryId: 0,
+      },
       rules: {
         title: [{ required: true, message: "请输入新闻标题", trigger: "blur" }],
         categoryId: [
@@ -135,21 +138,11 @@ export default {
     },
     // 提交
     handleSave(auditState) {
-      console.log(auditState);
-      const User = JSON.parse(localStorage.getItem("token"));
       this.$axios
-        .post("/news", {
+        .patch(`/news/${this.$route.params.id}`, {
           ...this.ruleForm,
           content: this.formInline.contentFileList,
-          region: User.region ? User.region : "全球",
-          author: User.username,
-          roleId: User.roleId,
           auditState: auditState,
-          publishState: 0,
-          createTime: Date.now(),
-          star: 0,
-          view: 0,
-          // "publishTime": 0
         })
         .then(() => {
           this.$router.push(
@@ -175,6 +168,15 @@ export default {
     this.$axios.get("/categories").then((res) => {
       this.categoryList = res.data;
     });
+    this.$axios
+      .get(`/news/${this.$route.params.id}?_expand=category&_expand=role`)
+      .then((res) => {
+        let { title, categoryId, content } = res.data;
+        this.ruleForm.title = title;
+        this.ruleForm.categoryId = categoryId;
+        this.formInline.contentFileList = content;
+        console.log(res.data);
+      });
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},

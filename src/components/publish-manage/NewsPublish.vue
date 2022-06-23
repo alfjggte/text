@@ -1,6 +1,6 @@
-<!-- 审核列表 -->
+<!-- 发布表格 -->
 <template>
-  <div class="AuditList">
+  <div class="NewsPublish">
     <el-table
       :data="
         dataSource.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -18,35 +18,15 @@
       </el-table-column>
       <el-table-column prop="category.title" label="新闻分类">
       </el-table-column>
-      <el-table-column prop="auditState" label="审核状态">
-        <template slot-scope="scope">
-          <el-tag :type="colorList[scope.row.auditState]">{{
-            auditList[scope.row.auditState]
-          }}</el-tag>
-        </template>
-      </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
-            plain
-            v-show="scope.row.auditState == 1"
-            @click="handleRervert(scope.row)"
-            >撤销</el-button
+            :type="color"
+            :plain="type === 1 ? false : true"
+            @click="operation(scope.row, type)"
+            >{{ button }}</el-button
           >
-          <el-button
-            type="success"
-            plain
-            v-show="scope.row.auditState == 2"
-            @click="handlePublish(scope.row)"
-            >发布</el-button
-          >
-          <el-button
-            type="primary"
-            plain
-            v-show="scope.row.auditState == 3"
-            @click="handleUpdate(scope.row)"
-            >更新</el-button
-          >
+          <slot></slot>
         </template>
       </el-table-column>
     </el-table>
@@ -69,66 +49,92 @@
 
 export default {
   //import引入的组件需要注入到对象中才能使用
+  props: { type: Number },
   components: {},
   data() {
     //这里存放数据
     return {
       dataSource: [],
-      colorList: ["", "warning", "success", "danger"],
-      auditList: ["草稿箱", "审核中", "已通过", "未通过"],
       currentPage: 1, // 当前页码
       pageSize: 5, // 每页的数据条数
     };
   },
   //监听属性 类似于data概念
-  computed: {},
+  computed: {
+    button() {
+      let button;
+      if (this.type === 1) {
+        button = "发布";
+      } else if (this.type === 2) {
+        button = "下线";
+      } else {
+        button = "删除";
+      }
+      return button;
+    },
+    color() {
+      let color;
+      if (this.type === 1) {
+        color = "primary";
+      } else if (this.type === 2) {
+        color = "danger";
+      } else {
+        color = "danger";
+      }
+      return color;
+    },
+  },
   //监控data中的数据变化
   watch: {},
   //方法集合
   methods: {
+    // 操作
+    operation(row, type) {
+      if (type === 1) {
+        this.dataSource = this.dataSource.filter((item) => item.id !== row.id);
+        this.$axios
+          .patch(`/news/${row.id}`, {
+            publishState: 2,
+            publishTime: Date.now(),
+          })
+          .then(() => {
+            this.$notify({
+              title: "通知",
+              message: `您可以到【发布管理/已经发布】中查看您的新闻`,
+              position: "bottom-right",
+              type: "success",
+            });
+          });
+      } else if (type === 2) {
+        this.dataSource = this.dataSource.filter((item) => item.id !== row.id);
+        this.$axios
+          .patch(`/news/${row.id}`, {
+            publishState: 3,
+          })
+          .then(() => {
+            this.$notify({
+              title: "通知",
+              message: `您可以到【发布管理/已下线】中查看您的新闻`,
+              position: "bottom-right",
+              type: "success",
+            });
+          });
+      } else if (type === 3) {
+        this.dataSource = this.dataSource.filter((item) => item.id !== row.id);
+        this.$axios.delete(`/news/${row.id}`).then(() => {
+          this.$notify({
+            title: "通知",
+            message: `您已经删除了已下线的新闻`,
+            position: "bottom-right",
+            type: "success",
+          });
+        });
+      }
+    },
     //当前页改变时触发 跳转其他页
     handleCurrentChange(val) {
       // console.log(`当前页: ${val}`);
       this.currentPage = val;
-    },
-    // 撤销
-    handleRervert(row) {
-      this.dataSource = this.dataSource.filter((item) => item.id !== row.id);
-      this.$axios
-        .patch(`/news/${row.id}`, {
-          auditState: 0,
-        })
-        .then(() => {
-          this.$notify({
-            title: "通知",
-            message: `您可以到草稿箱中查看您的新闻`,
-            position: "bottom-right",
-            type: "success",
-          });
-        });
-    },
-    // 发布
-    handlePublish(row) {
-      this.$axios
-        .patch(`/news/${row.id}`, {
-          publishState: 2,
-          publishTime: Date.now(),
-        })
-        .then(() => {
-          this.$router.push("/publish-manage/published");
-          this.$notify({
-            title: "通知",
-            message: `您可以到【发布管理/已经发布】中查看您的新闻`,
-            position: "bottom-right",
-            type: "success",
-          });
-          this.$store.commit("SetActive", "/publish-manage/published");
-        });
-    },
-    // 更新
-    handleUpdate(row) {
-      this.$router.push(`/news-manage/update/${row.id}`);
-      this.$store.commit("SetActive", `/news-manage/update/${row.id}`);
     },
   },
   //生命周期 - 创建完成（可以访问当前this实例）
@@ -136,7 +142,7 @@ export default {
     const { username } = JSON.parse(localStorage.getItem("token"));
     this.$axios
       .get(
-        `/news?author=${username}&auditState_ne=0&publishState_lte=1&_expand=category`
+        `/news?author=${username}&publishState=${this.type}&_expand=category`
       )
       .then((res) => {
         this.dataSource = res.data;
@@ -155,7 +161,4 @@ export default {
 </script>
 <style scoped>
 /* @import url(); 引入公共css类 */
-.el-button + .el-button {
-  margin-left: 0px;
-}
 </style>

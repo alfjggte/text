@@ -42,11 +42,10 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      align="center"
+      align="right"
       background
       @current-change="handleCurrentChange"
       :current-page="currentPage"
-      :page-sizes="[5]"
       :page-size="pageSize"
       layout=" prev, pager, next"
       :total="tableData.length"
