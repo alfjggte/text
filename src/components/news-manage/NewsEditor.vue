@@ -1,3 +1,4 @@
+<!-- 富文本框 -->
 <template>
   <div class="home">
     <el-tiptap v-model="formInline.contentFileList" :extensions="extensions" />

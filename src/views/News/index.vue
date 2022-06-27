@@ -1,4 +1,4 @@
-<!-- // json-server --watch db.json --port 2246 -->
+<!-- 查看新闻 -->
 <template>
   <div class="news">
     <div class="header">
@@ -48,9 +48,6 @@ export default {
     return {
       list: [],
       pagination: {
-        // onChange: () => {
-        // console.log(page);
-        // },
         pageSize: 3,
       },
     };

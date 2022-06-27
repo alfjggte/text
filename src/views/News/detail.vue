@@ -1,4 +1,4 @@
-<!--  -->
+<!-- 新闻详情 -->
 <template>
   <div class="detail">
     <a-page-header

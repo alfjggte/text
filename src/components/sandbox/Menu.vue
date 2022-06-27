@@ -10,56 +10,65 @@
     :router="true"
   >
     <h3 class="title">{{ isCollapse ? "管理" : "全球新闻发布管理系统" }}</h3>
-    <el-menu-item
-      v-for="item in noChildren"
-      :key="item.id"
-      :index="item.key"
-      @click="SetActive(item.key)"
-    >
-      <i class="el-icon-menu"></i>
-      <span slot="title">{{ item.title }}</span>
-    </el-menu-item>
-    <el-submenu v-for="item in haveChildren" :key="item.id" :index="item.key">
-      <template slot="title">
-        <i class="el-icon-warning"></i>
+    <template v-for="item in noChildren">
+      <el-menu-item
+        :key="item.id"
+        :index="item.key"
+        @click="SetActive(item.key)"
+        v-if="item.pagepermisson === 1 && rights.includes(item.key)"
+      >
+        <i class="el-icon-menu"></i>
         <span slot="title">{{ item.title }}</span>
-      </template>
-      <template v-for="item in item.children">
-        <el-menu-item
-          :index="item.key"
-          :key="item.id"
-          v-if="item.pagepermisson === 1"
-          @click="SetActive(item.key)"
-        >
+      </el-menu-item>
+    </template>
+
+    <template v-for="item in haveChildren">
+      <el-submenu
+        :key="item.id"
+        :index="item.key"
+        v-if="item.pagepermisson === 1 && rights.includes(item.key)"
+      >
+        <template slot="title">
           <i class="el-icon-warning"></i>
           <span slot="title">{{ item.title }}</span>
-        </el-menu-item>
-      </template>
-    </el-submenu>
+        </template>
+        <template v-for="item in item.children">
+          <el-menu-item
+            :index="item.key"
+            :key="item.id"
+            v-if="item.pagepermisson === 1 && rights.includes(item.key)"
+            @click="SetActive(item.key)"
+          >
+            <i class="el-icon-warning"></i>
+            <span slot="title">{{ item.title }}</span>
+          </el-menu-item>
+        </template>
+      </el-submenu>
+    </template>
   </el-menu>
 </template>
 
 <script>
 import { mapMutations, mapState } from "vuex";
+
 export default {
   name: "Menu",
   data() {
     return {
-      rights: [],
-      // activePath: "/home",
-      // noChildren: undefined,
+      menu: [],
+      rights: JSON.parse(localStorage.getItem("token")).role.rights,
     };
   },
   watch: {},
 
   computed: {
     noChildren() {
-      return this.rights.filter((item) => {
+      return this.menu.filter((item) => {
         return item.children.length == 0;
       });
     },
     haveChildren() {
-      return this.rights.filter((item) => {
+      return this.menu.filter((item) => {
         return !item.children.length == 0;
       });
     },
@@ -71,10 +80,9 @@ export default {
   },
   created() {
     this.$axios.get("/rights?_embed=children").then((response) => {
-      this.rights = response.data;
-      // console.log(response.data[1].children.length);
+      this.menu = response.data;
     });
-    // this.activePath = window.sessionStorage.getItem("activePath");
+    // console.log(this.rights);
   },
   mounted() {},
 };

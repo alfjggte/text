@@ -1,4 +1,4 @@
-<!--  -->
+<!-- 用户表单 -->
 <template>
   <div class="UserForm">
     <el-form
@@ -17,12 +17,13 @@
         <el-input v-model="ruleForm.password"></el-input>
       </el-form-item>
       <el-form-item label="区域" prop="region">
-        <el-select v-model="ruleForm.region" :disabled="disabled">
+        <el-select v-model="ruleForm.region" :disabled="isDisabled">
           <el-option
             v-for="item in regionList"
             :key="item.id"
             :label="item.title"
             :value="item.value"
+            :disabled="checkRegionDisabled(item)"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -33,15 +34,10 @@
             :key="item.id"
             :label="item.roleName"
             :value="item.roleType"
+            :disabled="checkRoleDisabled(item)"
           ></el-option>
         </el-select>
       </el-form-item>
-      <!-- <el-form-item>
-        <el-button type="primary" @click="submitForm('ruleForm')"
-          >立即创建</el-button
-        >
-        <el-button @click="resetForm('ruleForm')">重置</el-button>
-      </el-form-item> -->
     </el-form>
   </div>
 </template>
@@ -57,7 +53,7 @@ export default {
   data() {
     //这里存放数据
     return {
-      disabled: false, //禁选
+      // disabled: this.isDisabled, //禁选
       rules: {
         username: [
           { required: true, message: "请输入用户名", trigger: "blur" },
@@ -77,15 +73,17 @@ export default {
             trigger: "blur",
           },
         ],
-        region: [
-          { required: false, message: "请选择区域", trigger: "blur" },
-          // {isDisabled?[]:[{ required: true, message: 'Please input the title of collection!' }]
-        ],
-        roleId: [
-          { required: true, message: "请选择角色", trigger: "blur" },
-          // {isDisabled?[]:[{ required: true, message: 'Please input the title of collection!' }]
-        ],
+        region: this.disabled
+          ? []
+          : [{ required: true, message: "请选择区域", trigger: "blur" }],
+        roleId: [{ required: true, message: "请选择角色", trigger: "blur" }],
       },
+      roleObj: {
+        1: "superadmin",
+        2: "admin",
+        3: "editor",
+      },
+      isDisabled: false, //禁选
     };
   },
   //监听属性 类似于data概念
@@ -94,27 +92,45 @@ export default {
   watch: {},
   //方法集合
   methods: {
+    // 区域
+    checkRegionDisabled(item) {
+      const { roleId, region } = JSON.parse(localStorage.getItem("token"));
+      if (this.roleObj[roleId] === "superadmin") {
+        return false;
+      } else {
+        return item.value !== region;
+      }
+    },
+    // 角色
+    checkRoleDisabled(item) {
+      const { roleId } = JSON.parse(localStorage.getItem("token"));
+      if (this.roleObj[roleId] === "superadmin") {
+        return false;
+      } else {
+        return this.roleObj[item.id] !== "editor";
+      }
+    },
     refresh() {
       if (this.ruleForm.roleId === 1) {
-        this.disabled = true;
+        this.isDisabled = true;
         this.ruleForm.region = "";
       } else {
-        this.disabled = false;
+        this.isDisabled = false;
       }
     },
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    setInterval(() => {
-      this.refresh();
-    }, 0);
+    this.refresh();
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
-  updated() {}, //生命周期 - 更新之后
+  updated() {
+    this.refresh();
+  }, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
   destroyed() {}, //生命周期 - 销毁完成
   activated() {}, //如果页面有keep-alive缓存功能，这个函数会触发

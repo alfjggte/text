@@ -1,14 +1,17 @@
-<!--  -->
+<!-- 用户列表 -->
 <template>
   <div class="">
     <el-button type="primary" @click="addUser">添加用户</el-button>
     <el-table
       :data="
-        tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+        userList.slice((currentPage - 1) * pageSize, currentPage * pageSize)
       "
       style="width: 100%"
     >
       <el-table-column prop="region" label="区域" width="180">
+        <template slot-scope="scope">
+          {{ scope.row.region !== "" ? scope.row.region : "全球" }}
+        </template>
       </el-table-column>
       <el-table-column prop="role.roleName" label="角色名称" width="180">
       </el-table-column>
@@ -48,7 +51,7 @@
       :current-page="currentPage"
       :page-size="pageSize"
       layout=" prev, pager, next"
-      :total="tableData.length"
+      :total="userList.length"
     >
     </el-pagination>
 
@@ -57,13 +60,14 @@
       :visible.sync="isAddvisible"
       width="30%"
     >
-      <span
-        ><UserForm
+      <span>
+        <UserForm
           ref="addFrom"
           :roleList="roleList"
           :regionList="regionList"
           :ruleForm="ruleForm"
-      /></span>
+        />
+      </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="confirm">确 定</el-button>
@@ -79,7 +83,6 @@ import UserForm from "@/components/user-manage/UserForm";
 export default {
   name: "UserList",
   //import引入的组件需要注入到对象中才能使用
-
   components: {
     UserForm,
   },
@@ -98,23 +101,15 @@ export default {
         region: "",
         roleId: "",
       },
+      // isDisabled:false,//禁用
       currentPage: 1, // 当前页码
       pageSize: 5, // 每页的数据条数
       title: "add",
+      // timer: new Date().getTime(),
     };
   },
   //监听属性 类似于data概念
-  computed: {
-    tableData() {
-      const newlist = this.userList;
-      for (let i = 0; i < newlist.length; i++) {
-        if (newlist[i].region === "") {
-          newlist[i].region = "全球";
-        }
-      }
-      return newlist;
-    },
-  },
+  computed: {},
   //监控data中的数据变化
   watch: {},
   //方法集合
@@ -135,7 +130,6 @@ export default {
                 default: false,
               })
               .then((res) => {
-                // console.log(res.data);
                 this.userList = [
                   ...this.userList,
                   {
@@ -151,22 +145,8 @@ export default {
                   region: "",
                   roleId: "",
                 };
-                // this.userList = [
-                //   ...this.userList,
-                //   {
-                //     ...res.data,
-                //     role: this.roleList.filter(
-                //       (item) => item.id === this.ruleForm.roleId
-                //     )[0],
-                //   },
-                // ];
-                // this.ruleForm = {
-                //   username: "",
-                //   password: "",
-                //   region: "",
-                //   roleId: "",
-                // };
               });
+            this.isAddvisible = false;
           } else {
             console.log("error submit!!");
             return false;
@@ -188,13 +168,13 @@ export default {
                   roleId: "",
                 };
               });
+            this.isAddvisible = false;
           } else {
             console.log("error submit!!");
             return false;
           }
         });
       }
-      this.isAddvisible = false;
     },
 
     // 取消
@@ -206,7 +186,8 @@ export default {
         region: "",
         roleId: "",
       };
-      this.disabled = false;
+      // this.$refs.addFrom.refresh();
+      this.$refs.addFrom.$refs.ruleForm.clearValidate();
     },
     // 状态
     roleState(row) {
@@ -272,8 +253,7 @@ export default {
                 ...list.filter((item) => item.username === username),
                 ...list.filter(
                   (item) =>
-                    item.region === region &&
-                    this.roleObj[item.roleId] === "editor"
+                    item.region === region && roleObj[item.roleId] === "editor"
                 ),
               ];
       });
@@ -281,6 +261,7 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
+    // console.log(this.timer);
     this.getUserList();
     this.$axios.get("/regions").then((res) => {
       this.regionList = res.data;
