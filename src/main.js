@@ -12,7 +12,7 @@ import VueParticles from 'vue-particles'
 import * as echarts from "echarts"
 // Lodash 是一个一致性、模块化、高性能的 JavaScript 实用工具库
 import _ from 'lodash'
-import './util/http'
+import '../public/util/http'
 import { List, Avatar, Descriptions, PageHeader } from 'ant-design-vue'
 Vue.use(List).use(Avatar).use(Descriptions).use(PageHeader)
 // 格式化时间
